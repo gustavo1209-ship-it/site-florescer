@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Florescer Parque Residencial — Mapa de Lotes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,11 +27,12 @@
 
 /* ── Reset & Base ──────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { overflow: hidden; height: 100%; }
 body {
   font-family: 'Raleway', 'Segoe UI', Arial, sans-serif;
   background: var(--beige);
   overflow: hidden;
-  height: 100vh; width: 100vw;
+  height: 100dvh; width: 100vw;
   color: var(--text);
 }
 
@@ -114,7 +115,9 @@ body {
 
 /* ── Footer ────────────────────────────────────────────────────────────── */
 #footer {
-  position: fixed; bottom: 0; left: 0; right: 0; height: 36px;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(36px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   background: linear-gradient(135deg, var(--purple-dk), var(--purple));
   display: flex; align-items: center; justify-content: center; gap: 24px;
   z-index: 400;
@@ -131,7 +134,8 @@ body {
 
 /* ── Map container ─────────────────────────────────────────────────────── */
 #map-container {
-  position: fixed; top: 86px; left: 0; right: 0; bottom: 36px;
+  position: fixed; top: 86px; left: 0; right: 0;
+  bottom: calc(36px + env(safe-area-inset-bottom));
   overflow: hidden; cursor: grab;
   background: var(--beige);
 }
@@ -293,10 +297,7 @@ body {
 }
 
 /* ── Safari fixes ──────────────────────────────────────────────────────── */
-body {
-  height: 100dvh;
-  -webkit-user-select: none;
-}
+body { -webkit-user-select: none; }
 #map-container {
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
@@ -315,9 +316,9 @@ body {
   #header-right { display: none; }
   #search-wrap { display: none; }
 
-  #map-container { top: 60px; bottom: 28px; overflow: hidden; }
+  #map-container { top: 60px; bottom: calc(28px + env(safe-area-inset-bottom)); overflow: hidden; }
   #legend { top: 68px; }
-  #map-controls { bottom: 36px; }
+  #map-controls { bottom: calc(36px + env(safe-area-inset-bottom)); }
 
   #legend {
     top: 68px; left: 6px;
@@ -352,7 +353,7 @@ body {
   #info-footer { padding: 0 14px 12px; }
   #whatsapp-btn { padding: 9px; font-size: 13px; }
 
-  #footer { height: 28px; gap: 0; }
+  #footer { height: calc(28px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); gap: 0; }
   #footer > a, #footer > span, #footer > .footer-dot { display: none; }
   #footer-mob {
     display: flex; gap: 28px; align-items: center; justify-content: center; width: 100%;
