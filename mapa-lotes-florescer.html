@@ -976,14 +976,15 @@ document.addEventListener('touchstart', e => {
 }, { passive: false });
 
 
-// Centraliza o mapa para ver o todo: zoom(s) → rAF → pan(centrado)
+// Centraliza o mapa para ver o todo
 function fitAndCenter() {
   const cw = mapCont.clientWidth, ch = mapCont.clientHeight;
+  if (!cw || !ch) return;
   const s  = Math.min(cw / svgW, ch / svgH);
   const px = (cw - svgW * s) / 2;
   const py = (ch - svgH * s) / 2;
   panzoom.zoom(s, { animate: false });
-  requestAnimationFrame(() => panzoom.pan(px, py, { animate: false }));
+  panzoom.pan(px, py, { animate: false });
 }
 
 document.getElementById('btn-zoom-in').onclick  = () => panzoom.zoomIn();
@@ -1102,7 +1103,5 @@ function focusLot(lid) {
 // Aguarda o browser terminar de renderizar para então ajustar e centralizar
 window.addEventListener('load', () => {
   requestAnimationFrame(fitAndCenter);
-});
-</script>
-</body>
-</html>
+  setTimeout(fitAndCenter, 250); // fallback: iOS pode não ter 
+                        
