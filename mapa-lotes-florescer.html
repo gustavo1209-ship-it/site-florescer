@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Florescer Parque Residencial — Mapa de Lotes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,8 +28,7 @@
 /* ── Reset & Base ──────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
@@ -125,8 +124,7 @@ body {
 /* ── Footer ────────────────────────────────────────────────────────────── */
 #footer {
   position: fixed; bottom: 0; left: 0; right: 0;
-  height: calc(36px + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
+  height: 36px;
   background: linear-gradient(135deg, var(--purple-dk), var(--purple));
   display: flex; align-items: center; justify-content: center; gap: 24px;
   z-index: 400;
@@ -144,7 +142,7 @@ body {
 /* ── Map container ─────────────────────────────────────────────────────── */
 #map-container {
   position: fixed; top: 86px; left: 0; right: 0;
-  bottom: calc(36px + env(safe-area-inset-bottom));
+  bottom: 36px;
   overflow: hidden; cursor: grab;
   background: var(--beige);
 }
@@ -326,9 +324,9 @@ body { -webkit-user-select: none; }
   #header-right { display: none; }
   #search-wrap { display: none; }
 
-  #map-container { top: 60px; bottom: calc(28px + env(safe-area-inset-bottom)); overflow: hidden; }
+  #map-container { top: 60px; bottom: 28px; overflow: hidden; }
   #legend { top: 68px; }
-  #map-controls { bottom: calc(36px + env(safe-area-inset-bottom)); }
+  #map-controls { bottom: 36px; }
 
   #legend {
     top: 68px; left: 6px;
@@ -363,7 +361,7 @@ body { -webkit-user-select: none; }
   #info-footer { padding: 0 14px 12px; }
   #whatsapp-btn { padding: 9px; font-size: 13px; }
 
-  #footer { height: calc(28px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); gap: 0; }
+  #footer { height: 28px; gap: 0; }
   #footer > a, #footer > span, #footer > .footer-dot { display: none; }
   #footer-mob {
     display: flex; gap: 28px; align-items: center; justify-content: center; width: 100%;
@@ -978,20 +976,6 @@ document.addEventListener('touchstart', e => {
   if (!mapCont.contains(e.target)) e.preventDefault();
 }, { passive: false });
 
-// Visual Viewport API — garante que footer fique acima da barra do Safari
-function fixViewport() {
-  const vv = window.visualViewport;
-  if (!vv) return;
-  // Quanto a barra do browser está cobrindo a parte de baixo
-  const offset = Math.max(0, window.screen.height - vv.height - vv.pageTop);
-  const footer = document.getElementById('footer');
-  footer.style.bottom  = offset + 'px';
-  mapCont.style.bottom = (footer.offsetHeight + offset) + 'px';
-  if (typeof fitAndCenter === 'function') requestAnimationFrame(fitAndCenter);
-}
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', fixViewport);
-}
 
 // Centraliza o mapa para ver o todo: zoom(s) → rAF → pan(centrado)
 function fitAndCenter() {
@@ -1118,7 +1102,6 @@ function focusLot(lid) {
 
 // Aguarda o browser terminar de renderizar para então ajustar e centralizar
 window.addEventListener('load', () => {
-  fixViewport();
   requestAnimationFrame(fitAndCenter);
 });
 </script>
