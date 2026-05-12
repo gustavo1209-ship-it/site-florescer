@@ -977,65 +977,22 @@ document.addEventListener('touchstart', e => {
 
 
 // Centraliza o mapa para ver o todo
+function fitAndCenter() {
+  const cw = mapCont.clientWidth, ch = mapCont.clientHeight;
+  if (!cw || !ch) return;
+  const s  = Math.min(cw / svgW, ch / svgH);
+  const px = MOB ? 0 : (cw - svgW * s) / 2;
+  const py = MOB ? 0 : (ch - svgH * s) / 2;
+  panzoom.zoom(s, { animate: false });
+  panzoom.pan(px, py, { animate: false });
+}
 
-  <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
+document.getElementById('btn-zoom-in').onclick  = () => panzoom.zoomIn();
+document.getElementById('btn-zoom-out').onclick = () => panzoom.zoomOut();
+document.getElementById('btn-reset').onclick    = fitAndCenter;
+svgEl.addEventListener('mousedown', () => mapCont.classList.add('grabbing'));
+document.addEventListener('mouseup',  () => mapCont.classList.remove('grabbing'));
 
-  body {
-    min-height: 100dvh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    overflow: hidden;
-  }
-
-  header, footer {
-    z-index: 2;
-  }
-
-  #map-container {
-    min-height: 0;
-    width: 100%;
-    overflow: hidden;
-    touch-action: none;
-  }
-
-  #map-container.grabbing {
-    cursor: grabbing;
-  }
-</style>
-
-<script>
-  // Centraliza e ajusta o mapa para caber inteiro na área disponível
-  function fitAndCenter() {
-    const cw = mapCont.clientWidth;
-    const ch = mapCont.clientHeight;
-    if (!cw || !ch) return;
-
-    const s = Math.min(cw / svgW, ch / svgH);
-    const px = (cw - svgW * s) / 2;
-    const py = (ch - svgH * s) / 2;
-
-    panzoom.zoomAbs(0, 0, s);
-    panzoom.moveTo(px, py);
-  }
-
-  // Recalcula em mudanças de viewport (rotação, barra do browser etc.)
-  window.addEventListener('load', fitAndCenter);
-  window.addEventListener('resize', fitAndCenter);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', fitAndCenter);
-  }
-
-  document.getElementById('btn-zoom-in').onclick  = () => panzoom.smoothZoom(svgW / 2, svgH / 2, 1.2);
-  document.getElementById('btn-zoom-out').onclick = () => panzoom.smoothZoom(svgW / 2, svgH / 2, 0.8);
-  document.getElementById('btn-reset').onclick    = fitAndCenter;
-
-  svgEl.addEventListener('mousedown', () => mapCont.classList.add('grabbing'));
-  document.addEventListener('mouseup', () => mapCont.classList.remove('grabbing'));
-</script>
 // Coords
 svgEl.addEventListener('mousemove', e => {
   const pt = svgEl.createSVGPoint();
