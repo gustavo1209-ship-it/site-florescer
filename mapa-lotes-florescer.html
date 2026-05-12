@@ -958,7 +958,7 @@ const svgW = MOB ? 1080 : 1920, svgH = MOB ? 1920 : 1080;
 
 const panzoom = Panzoom(svgEl, {
   maxScale: 14, minScale: 0.25, step: 0.3, canvas: true,
-  contain: 'inside',
+  contain: 'outside',
   handleStartEvent: e => e.preventDefault(),
   touchAction: 'none'
 });
@@ -971,10 +971,6 @@ mapCont.addEventListener('touchend', panzoom.handleTouchEnd, { passive: false })
 
 // Bloqueia scroll/rubber-band no iOS completamente
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-// touchstart: bloqueia fora do mapa (header/footer) para evitar rubber-band
-document.addEventListener('touchstart', e => {
-  if (!mapCont.contains(e.target)) e.preventDefault();
-}, { passive: false });
 
 
 // Centraliza o mapa para ver o todo
