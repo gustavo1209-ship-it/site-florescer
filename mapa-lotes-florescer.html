@@ -27,12 +27,19 @@
 
 /* ── Reset & Base ──────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { overflow: hidden; height: 100%; }
+html {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  height: 100dvh;
+}
 body {
   font-family: 'Raleway', 'Segoe UI', Arial, sans-serif;
   background: var(--beige);
   overflow: hidden;
-  height: 100dvh; width: 100vw;
+  overscroll-behavior: none;
+  touch-action: none;
+  width: 100%; height: 100dvh;
   color: var(--text);
 }
 
@@ -306,6 +313,7 @@ body { -webkit-user-select: none; }
 .lote { -webkit-tap-highlight-color: transparent; }
 .lote:hover { -webkit-filter: brightness(1.15); }
 .lote.selected { -webkit-filter: brightness(1.2); }
+
 
 /* ── Mobile ────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -939,7 +947,7 @@ const mapCont = document.getElementById('map-container');
 const MOB = window.innerWidth <= 640;
 if (MOB) {
   const wrap = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  wrap.setAttribute('transform', 'translate(1080,0) rotate(90)');
+  wrap.setAttribute('transform', 'translate(0,1920) rotate(-90)');
   while (svgEl.firstChild) wrap.appendChild(svgEl.firstChild);
   svgEl.appendChild(wrap);
   svgEl.setAttribute('viewBox', '0 0 1080 1920');
@@ -960,6 +968,27 @@ mapCont.addEventListener('wheel', e => {
 mapCont.addEventListener('touchstart', panzoom.handleTouchStart, { passive: false });
 mapCont.addEventListener('touchmove', panzoom.handleTouchMove, { passive: false });
 mapCont.addEventListener('touchend', panzoom.handleTouchEnd, { passive: false });
+
+// Bloqueia scroll/rubber-band no iOS completamente
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+// touchstart: bloqueia fora do mapa (header/footer) para evitar rubber-band
+document.addEventListener('touchstart', e => {
+  if (!mapCont.contains(e.target)) e.preventDefault();
+}, { passive: false });
+
+// Visual Viewport API — reposiciona footer acima da barra do Safari dinamicamente
+function fixViewport() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  const footer = document.getElementById('footer');
+  footer.style.bottom  = offset + 'px';
+  mapCont.style.bottom = (footer.offsetHeight + offset) + 'px';
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', fixViewport);
+  window.visualViewport.addEventListener('scroll', fixViewport);
+}
 
 // Centraliza o mapa para ver o todo: zoom(s) → rAF → pan(centrado)
 function fitAndCenter() {
@@ -1071,7 +1100,7 @@ function focusLot(lid) {
   const d = LOT_DATA[lid]; if (!d) return;
   let cx = d.centroid ? d.centroid[0] : d.pts.reduce((s,p)=>s+p[0],0)/d.pts.length;
   let cy = d.centroid ? d.centroid[1] : d.pts.reduce((s,p)=>s+p[1],0)/d.pts.length;
-  if (MOB) { const t = 1080 - cy; cy = cx; cx = t; }
+  if (MOB) { const t = cy; cy = 1920 - cx; cx = t; }
   const targetScale = 6;
   panzoom.zoom(targetScale, {animate:true});
   setTimeout(() => {
@@ -1084,8 +1113,11 @@ function focusLot(lid) {
   setTimeout(() => showInfo(lid), 300);
 }
 
-// Aguarda o browser terminar de renderizar para então centralizar o mapa
-window.addEventListener('load', () => requestAnimationFrame(fitAndCenter));
+// Aguarda o browser terminar de renderizar para então ajustar e centralizar
+window.addEventListener('load', () => requestAnimationFrame(() => {
+  fixViewport();
+  fitAndCenter();
+}));
 </script>
 </body>
 </html>
