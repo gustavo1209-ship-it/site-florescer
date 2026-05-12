@@ -975,13 +975,21 @@ document.addEventListener('touchstart', e => {
   if (!mapCont.contains(e.target)) e.preventDefault();
 }, { passive: false });
 
+
+// Centraliza o mapa para ver o todo
+function fitAndCenter() {
+  const cw = mapCont.clientWidth, ch = mapCont.clientHeight;
+  if (!cw || !ch) return;
+  const s  = Math.min(cw / svgW, ch / svgH);
+  const px = (cw - svgW * s) / 2;
+  const py = (ch - svgH * s) / 2;
+  panzoom.zoom(s, { animate: false });
+  panzoom.pan(px, py, { animate: false });
+}
+
 document.getElementById('btn-zoom-in').onclick  = () => panzoom.zoomIn();
 document.getElementById('btn-zoom-out').onclick = () => panzoom.zoomOut();
-document.getElementById('btn-reset').onclick = () => {
-  const cw = mapCont.clientWidth, ch = mapCont.clientHeight;
-  const s = Math.min(cw/1920, ch/1080);
-  panzoom.zoom(s, {animate:true}); panzoom.pan(0, 0, {animate:true});
-};
+document.getElementById('btn-reset').onclick    = fitAndCenter;
 svgEl.addEventListener('mousedown', () => mapCont.classList.add('grabbing'));
 document.addEventListener('mouseup',  () => mapCont.classList.remove('grabbing'));
 
@@ -1092,11 +1100,10 @@ function focusLot(lid) {
   setTimeout(() => showInfo(lid), 300);
 }
 
-// ── Initial fit ─────────────────────────────────────────────────────────
+// Aguarda o browser terminar de renderizar para então ajustar e centralizar
 window.addEventListener('load', () => {
-  const cw = mapCont.clientWidth, ch = mapCont.clientHeight;
-  const s = Math.min(cw/1920, ch/1080);
-  panzoom.zoom(s, {animate:false}); panzoom.pan(0, 0, {animate:false});
+  requestAnimationFrame(fitAndCenter);
+  setTimeout(fitAndCenter, 250); // fallback: iOS pode não ter dimensões prontas no primeiro rAF
 });
 </script>
 </body>
