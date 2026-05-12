@@ -29,6 +29,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html {
   height: 100%;
+  height: -webkit-fill-available;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
@@ -36,8 +37,10 @@ html {
 body {
   font-family: 'Raleway', 'Segoe UI', Arial, sans-serif;
   background: var(--beige);
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  height: 100%;
+  height: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
@@ -46,7 +49,7 @@ body {
 
 /* ── Header ────────────────────────────────────────────────────────────── */
 #header {
-  position: fixed; top: 0; left: 0; right: 0; height: 86px;
+  flex-shrink: 0; position: relative; height: 86px;
   background: linear-gradient(135deg, var(--purple-dk) 0%, var(--purple) 60%, var(--purple-lt) 100%);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px; z-index: 400;
@@ -123,7 +126,7 @@ body {
 
 /* ── Footer ────────────────────────────────────────────────────────────── */
 #footer {
-  position: fixed; bottom: 0; left: 0; right: 0;
+  flex-shrink: 0; position: relative;
   height: 36px;
   background: linear-gradient(135deg, var(--purple-dk), var(--purple));
   display: flex; align-items: center; justify-content: center; gap: 24px;
@@ -139,10 +142,15 @@ body {
 .footer-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--gold); opacity: .6; }
 #footer-mob { display: none; }
 
-/* ── Map container ─────────────────────────────────────────────────────── */
+/* ── Map wrapper + container ───────────────────────────────────────────── */
+#map-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+}
 #map-container {
-  position: fixed; top: 86px; left: 0; right: 0;
-  bottom: 36px;
+  position: absolute; inset: 0;
   overflow: hidden; cursor: grab;
   background: var(--beige);
 }
@@ -166,7 +174,7 @@ body {
 
 /* ── Legend ────────────────────────────────────────────────────────────── */
 #legend {
-  position: fixed; top: 100px; left: 14px;
+  position: absolute; top: 14px; left: 14px;
   background: rgba(232,227,213,.95);
   border: 1px solid var(--beige-dk);
   border-radius: 12px; padding: 14px 16px;
@@ -185,7 +193,7 @@ body {
 
 /* ── Map controls ──────────────────────────────────────────────────────── */
 #map-controls {
-  position: fixed; bottom: 52px; left: 14px;
+  position: absolute; bottom: 52px; left: 14px;
   display: flex; flex-direction: column; gap: 6px; z-index: 200;
 }
 .ctrl-btn {
@@ -199,14 +207,14 @@ body {
 
 /* ── Compass ───────────────────────────────────────────────────────────── */
 #compass {
-  position: fixed; bottom: 52px; left: 58px;
+  position: absolute; bottom: 52px; left: 58px;
   width: 58px; height: 58px; z-index: 200;
   filter: drop-shadow(0 3px 8px rgba(91,33,102,.25));
 }
 
 /* ── Coords display ────────────────────────────────────────────────────── */
 #coords {
-  position: fixed; bottom: 42px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 42px; left: 50%; transform: translateX(-50%);
   background: rgba(91,33,102,.75); color: rgba(255,255,255,.7);
   font-size:13px; padding: 3px 10px; border-radius: 10px;
   z-index: 200; pointer-events: none; font-family: monospace; letter-spacing: .5px;
@@ -214,7 +222,7 @@ body {
 
 /* ── Info Panel ────────────────────────────────────────────────────────── */
 #info-panel {
-  position: fixed; top: 100px; right: 14px;
+  position: absolute; top: 14px; right: 14px;
   background: var(--beige-lt);
   border: 1px solid var(--beige-dk);
   border-radius: 16px; z-index: 300;
@@ -278,7 +286,7 @@ body {
 
 /* ── QR / Social box ───────────────────────────────────────────────────── */
 #social-box {
-  position: fixed; bottom: 52px; right: 14px;
+  position: absolute; bottom: 52px; right: 14px;
   background: var(--beige-lt);
   border: 1px solid var(--beige-dk);
   border-radius: 14px; padding: 14px 16px;
@@ -324,12 +332,8 @@ body { -webkit-user-select: none; }
   #header-right { display: none; }
   #search-wrap { display: none; }
 
-  #map-container { top: 60px; bottom: 28px; overflow: hidden; }
-  #legend { top: 68px; }
-  #map-controls { bottom: 36px; }
-
   #legend {
-    top: 68px; left: 6px;
+    top: 8px; left: 6px;
     padding: 6px 8px; min-width: 100px;
   }
   #legend h3 { font-size: 9px; margin-bottom: 4px; padding-bottom: 4px; }
@@ -346,7 +350,7 @@ body { -webkit-user-select: none; }
   #social-box { display: none; }
 
   #info-panel {
-    top: auto; right: 0; left: 0; bottom: 28px;
+    top: auto; right: 0; left: 0; bottom: 0;
     width: 100%; border-radius: 12px 12px 0 0;
     max-height: 42vh; overflow-y: auto;
   }
@@ -401,6 +405,7 @@ body { -webkit-user-select: none; }
   </div>
 </div>
 
+<div id="map-wrapper">
 <!-- ── LEGEND ─────────────────────────────────────────────────────────── -->
 <div id="legend">
   <h3>Status dos Lotes</h3>
@@ -762,6 +767,7 @@ body { -webkit-user-select: none; }
     </g>
   </svg>
 </div>
+</div>
 
 <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
 <div id="footer">
@@ -1104,6 +1110,3 @@ function focusLot(lid) {
 window.addEventListener('load', () => {
   requestAnimationFrame(fitAndCenter);
 });
-</script>
-</body>
-</html>
