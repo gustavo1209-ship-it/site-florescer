@@ -28,18 +28,20 @@
 /* ── Reset & Base ──────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
-  height: 100dvh;
 }
 body {
   font-family: 'Raleway', 'Segoe UI', Arial, sans-serif;
   background: var(--beige);
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
-  width: 100%; height: 100dvh;
   color: var(--text);
 }
 
@@ -976,18 +978,19 @@ document.addEventListener('touchstart', e => {
   if (!mapCont.contains(e.target)) e.preventDefault();
 }, { passive: false });
 
-// Visual Viewport API — reposiciona footer acima da barra do Safari dinamicamente
+// Visual Viewport API — garante que footer fique acima da barra do Safari
 function fixViewport() {
   const vv = window.visualViewport;
   if (!vv) return;
-  const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  // Quanto a barra do browser está cobrindo a parte de baixo
+  const offset = Math.max(0, window.screen.height - vv.height - vv.pageTop);
   const footer = document.getElementById('footer');
   footer.style.bottom  = offset + 'px';
   mapCont.style.bottom = (footer.offsetHeight + offset) + 'px';
+  if (typeof fitAndCenter === 'function') requestAnimationFrame(fitAndCenter);
 }
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', fixViewport);
-  window.visualViewport.addEventListener('scroll', fixViewport);
 }
 
 // Centraliza o mapa para ver o todo: zoom(s) → rAF → pan(centrado)
@@ -1114,10 +1117,10 @@ function focusLot(lid) {
 }
 
 // Aguarda o browser terminar de renderizar para então ajustar e centralizar
-window.addEventListener('load', () => requestAnimationFrame(() => {
+window.addEventListener('load', () => {
   fixViewport();
-  fitAndCenter();
-}));
+  requestAnimationFrame(fitAndCenter);
+});
 </script>
 </body>
 </html>
