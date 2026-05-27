@@ -15,7 +15,7 @@
     if(fm)fm.onsubmit=function(e){
       e.preventDefault();
       var n=fm.querySelector('[name=nome]').value,w=fm.querySelector('[name=wpp]').value,em=fm.querySelector('[name=email]').value;
-      fetch(GS+'?nome='+encodeURIComponent(n)+'&wpp='+encodeURIComponent(w)+'&email='+encodeURIComponent(em)+'&origem=Exit%20Intent',{mode:'no-cors'}).catch(function(){});
+      new Image().src=GS+'?nome='+encodeURIComponent(n)+'&wpp='+encodeURIComponent(w)+'&email='+encodeURIComponent(em)+'&origem=Exit%20Intent';
       fm.style.display='none';
       if(tk)tk.style.display='block';
       setTimeout(function(){
