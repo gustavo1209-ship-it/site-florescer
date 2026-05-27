@@ -15,7 +15,18 @@
     if(fm)fm.onsubmit=function(e){
       e.preventDefault();
       var n=fm.querySelector('[name=nome]').value,w=fm.querySelector('[name=wpp]').value,em=fm.querySelector('[name=email]').value;
-      new Image().src=GS+'?nome='+encodeURIComponent(n)+'&wpp='+encodeURIComponent(w)+'&email='+encodeURIComponent(em)+'&origem=Exit%20Intent';
+      try{
+        var ifr=document.createElement('iframe');
+        ifr.style.cssText='display:none;width:0;height:0;border:0';
+        ifr.name='_flx_gs';
+        document.body.appendChild(ifr);
+        var frm=document.createElement('form');
+        frm.method='GET';frm.action=GS;frm.target='_flx_gs';
+        var params={nome:n,wpp:w,email:em,origem:'Exit Intent'};
+        for(var k in params){var inp=document.createElement('input');inp.type='hidden';inp.name=k;inp.value=params[k];frm.appendChild(inp);}
+        document.body.appendChild(frm);
+        frm.submit();
+      }catch(er){new Image().src=GS+'?nome='+encodeURIComponent(n)+'&wpp='+encodeURIComponent(w)+'&email='+encodeURIComponent(em)+'&origem=Exit%20Intent';}
       fm.style.display='none';
       if(tk)tk.style.display='block';
       setTimeout(function(){
