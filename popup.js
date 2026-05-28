@@ -1,5 +1,5 @@
 (function(){
-  if(location.pathname.indexOf('mapa-vendas')!==-1)return;
+  if(location.pathname.indexOf('ponzoni-industrial-vendas')!==-1)return;
   var GS='https://script.google.com/macros/s/AKfycbzouicNR8FGPRX9rw_SPN0lGr2qKKtg4QcBCZPlk8ivEp0IvezzRsVr0mo9tr5SE1iQfA/exec';
   var SK='flx_v6',EX=864e5,shown=false;
 
