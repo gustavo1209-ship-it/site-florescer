@@ -1,0 +1,39 @@
+name: Sync Webflow → Git
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # toda hora
+  workflow_dispatch:       # trigger manual pelo GitHub
+  repository_dispatch:
+    types: [webflow-publish]  # trigger via webhook do Webflow
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Buscar páginas do Webflow
+        run: |
+          curl -sf -L "https://florescerparqueresidencial.com.br/" -o index.html
+          curl -sf -L "https://florescerparqueresidencial.com.br/projetos" -o projetos.html
+          curl -sf -L "https://florescerparqueresidencial.com.br/sobre" -o sobre.html
+          curl -sf -L "https://florescerparqueresidencial.com.br/contato" -o contato.html
+
+      - name: Commit se houver mudanças
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html projetos.html sobre.html contato.html
+          if git diff --cached --quiet; then
+            echo "Sem mudanças — nada a commitar."
+          else
+            git commit -m "sync: Webflow → git $(date -u '+%d/%m/%Y %H:%M UTC')"
+            git push
+          fi
