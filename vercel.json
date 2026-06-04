@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/webflow-webhook.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
