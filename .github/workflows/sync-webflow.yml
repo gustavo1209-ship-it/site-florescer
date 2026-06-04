@@ -2,10 +2,8 @@ name: Sync Webflow → Git
 
 on:
   schedule:
-    - cron: '0 * * * *'  # toda hora
-  workflow_dispatch:       # trigger manual pelo GitHub
-  repository_dispatch:
-    types: [webflow-publish]  # trigger via webhook do Webflow
+    - cron: '*/15 * * * *'  # a cada 15 minutos
+  workflow_dispatch:         # trigger manual pelo GitHub
 
 permissions:
   contents: write
@@ -19,7 +17,30 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verificar se Webflow publicou desde o último sync
+        id: check
+        run: |
+          SITE_ID="6827996afa19aee5551b7f3e"
+
+          LAST_PUBLISHED=$(curl -sf \
+            -H "Authorization: Bearer ${{ secrets.WEBFLOW_TOKEN }}" \
+            -H "accept: application/json" \
+            "https://api.webflow.com/v2/sites/$SITE_ID" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin).get('lastPublished',''))")
+
+          LAST_SYNC=$(git log -1 --format="%cI" -- index.html projetos.html sobre.html contato.html 2>/dev/null || echo "")
+
+          echo "Webflow publicou em: $LAST_PUBLISHED"
+          echo "Último sync no git:  $LAST_SYNC"
+
+          if [[ -z "$LAST_SYNC" || "$LAST_PUBLISHED" > "$LAST_SYNC" ]]; then
+            echo "needs_sync=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_sync=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Buscar páginas do Webflow
+        if: steps.check.outputs.needs_sync == 'true'
         run: |
           curl -sf -L "https://florescerparqueresidencial.com.br/" -o index.html
           curl -sf -L "https://florescerparqueresidencial.com.br/projetos" -o projetos.html
@@ -27,12 +48,13 @@ jobs:
           curl -sf -L "https://florescerparqueresidencial.com.br/contato" -o contato.html
 
       - name: Commit se houver mudanças
+        if: steps.check.outputs.needs_sync == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html projetos.html sobre.html contato.html
           if git diff --cached --quiet; then
-            echo "Sem mudanças — nada a commitar."
+            echo "Sem mudanças detectadas."
           else
             git commit -m "sync: Webflow → git $(date -u '+%d/%m/%Y %H:%M UTC')"
             git push
