@@ -1023,7 +1023,7 @@ const infoPanel = document.getElementById('info-panel');
 document.getElementById('info-close').onclick = () => {
   infoPanel.classList.remove('visible');
   document.querySelectorAll('.lote.selected').forEach(el => el.classList.remove('selected'));
-  fitAndCenter();
+  setTimeout(fitAndCenter, 300);
 };
 
 function showInfo(lid) {
