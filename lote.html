@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Florescer — Lote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple:    #5B2166;
+  --purple-dk: #3E1647;
+  --purple-lt: #7A3A8A;
+  --gold:      #C4A550;
+  --gold-lt:   #D4BB75;
+  --beige:     #E8E3D5;
+  --beige-dk:  #D8D0BE;
+  --beige-lt:  #F2EEE4;
+  --text:      #2C1840;
+  --green:     #25D366;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body {
+  font-family: 'Raleway', 'Segoe UI', Arial, sans-serif;
+  background: var(--beige);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  width: 100%;
+  background: linear-gradient(135deg, var(--purple-dk) 0%, var(--purple) 60%, var(--purple-lt) 100%);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 16px rgba(91,33,102,.35);
+}
+header img {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  object-fit: cover;
+  background: var(--beige-lt);
+  flex-shrink: 0;
+}
+.hdr-text .name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--beige-lt);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.hdr-text .sub {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: var(--gold-lt);
+  text-transform: uppercase;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 6px 32px rgba(91,33,102,.13);
+  margin: 28px 16px;
+  padding: 32px 28px 28px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.lot-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.lot-id {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 68px;
+  color: var(--purple);
+  letter-spacing: 5px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.info-box {
+  background: var(--beige-lt);
+  border-radius: 12px;
+  padding: 14px 10px;
+}
+.info-box .label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.info-box .value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--purple);
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+.info-box.full { grid-column: 1 / -1; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.status-badge::before {
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .6;
+}
+.sts-1 { background: #d4edda; color: #155724; }
+.sts-2 { background: #f8d7da; color: #721c24; }
+.sts-3 { background: #fff3cd; color: #856404; }
+.sts-4 { background: #ffe5cc; color: #8a3e00; }
+.sts-5 { background: #e7d9f3; color: #4a1766; }
+
+hr.divider {
+  border: none;
+  border-top: 1px solid var(--beige-dk);
+  margin: 22px 0;
+}
+
+.cta-text {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  opacity: .8;
+}
+
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--green);
+  color: #fff;
+  border-radius: 14px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 4px 16px rgba(37,211,102,.3);
+}
+.whatsapp-btn:hover  { background: #1ebe5a; }
+.whatsapp-btn:active { transform: scale(.98); }
+.whatsapp-btn svg { width: 24px; height: 24px; flex-shrink: 0; }
+
+.map-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--purple);
+  font-weight: 600;
+  text-decoration: none;
+  opacity: .75;
+}
+.map-link:hover { opacity: 1; text-decoration: underline; }
+
+#not-found {
+  display: none;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 6px 32px rgba(91,33,102,.13);
+  margin: 40px 16px;
+  padding: 40px 28px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  color: #721c24;
+  font-size: 16px;
+  line-height: 1.7;
+}
+#not-found a { color: var(--purple); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo-florescer.png" alt="Florescer">
+  <div class="hdr-text">
+    <div class="name">Florescer</div>
+    <div class="sub">Parque Residencial</div>
+  </div>
+</header>
+
+<div class="card" id="card">
+  <div class="lot-label">Terreno</div>
+  <div class="lot-id" id="lot-id">—</div>
+
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="label">Quadra</div>
+      <div class="value" id="info-quadra">—</div>
+    </div>
+    <div class="info-box">
+      <div class="label">Área</div>
+      <div class="value" id="info-area">—</div>
+    </div>
+    <div class="info-box full">
+      <div class="label">Situação</div>
+      <span class="status-badge sts-1" id="status-badge">—</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <p class="cta-text">Interessado neste terreno?<br>Entre em contato agora:</p>
+
+  <a class="whatsapp-btn" id="whatsapp-btn" href="#">
+    <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 3C9.383 3 4 8.383 4 15c0 2.363.674 4.565 1.836 6.434L4 29l7.766-1.82A11.94 11.94 0 0 0 16 27c6.617 0 12-5.383 12-12S22.617 3 16 3zm0 2c5.535 0 10 4.465 10 10s-4.465 10-10 10a9.94 9.94 0 0 1-4.852-1.254l-.348-.207-4.61 1.082 1.113-4.508-.227-.37A9.93 9.93 0 0 1 6 15c0-5.535 4.465-10 10-10zm-3.547 5c-.215 0-.547.08-.836.395-.289.316-1.102 1.078-1.102 2.629s1.128 3.05 1.285 3.258c.16.207 2.188 3.445 5.371 4.688 2.652 1.043 3.188.836 3.762.785.574-.051 1.852-.758 2.113-1.488.262-.73.262-1.355.184-1.488-.078-.133-.289-.21-.605-.367-.316-.156-1.852-.914-2.14-1.02-.29-.105-.5-.156-.711.156-.211.313-.816 1.02-.996 1.227-.184.207-.367.235-.684.079-.316-.156-1.332-.492-2.539-1.566-.938-.836-1.57-1.867-1.754-2.184-.184-.316-.02-.488.14-.645.145-.14.317-.367.473-.551.156-.184.207-.316.316-.527.105-.211.052-.395-.027-.551-.078-.156-.703-1.703-.965-2.332-.254-.605-.512-.52-.707-.527-.18-.008-.39-.012-.602-.012z"/>
+    </svg>
+    Tenho interesse neste terreno
+  </a>
+
+  <a class="map-link" href="mapa-lotes-florescer-v3.html">Ver mapa completo →</a>
+</div>
+
+<div id="not-found">
+  Terreno não encontrado.<br><br>
+  Acesse o <a href="mapa-lotes-florescer-v3.html">mapa completo de lotes</a>.
+</div>
+
+<script>
+const PHONE = '5554996098638';
+const SHEET_ID  = '1o4-YxN0ujoNQ52Nu7MkM_d6usSMkhTl8z939m7JVBSw';
+const SHEET_GID = '1375840424';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+
+const STATUS_MAP = {
+  'livre':'Livre','disponivel':'Livre','disponível':'Livre',
+  'vendido':'Vendido','vendida':'Vendido',
+  'reservado':'Reservado','reservada':'Reservado',
+  'nao disponivel':'Não Disponível','não disponível':'Não Disponível','indisponivel':'Não Disponível',
+  'projeto':'Projeto','em projeto':'Projeto'
+};
+const STS_NUM = {'Livre':1,'Vendido':2,'Reservado':3,'Não Disponível':4,'Projeto':5};
+
+const LOT_DATA = {
+"A01":{"q":"A","s":"Livre","sts":1,"a":653.22},
+"A02":{"q":"A","s":"Livre","sts":1,"a":757.56},
+"A03":{"q":"A","s":"Livre","sts":1,"a":1229.79},
+"A04":{"q":"C","s":"Livre","sts":1,"a":711.09},
+"A05":{"q":"C","s":"Livre","sts":1,"a":1079.41},
+"A06":{"q":"C","s":"Livre","sts":1,"a":1276.11},
+"A07":{"q":"C","s":"Livre","sts":1,"a":539.08},
+"A08":{"q":"A","s":"Livre","sts":1,"a":686.7},
+"A09":{"q":"A","s":"Livre","sts":1,"a":800},
+"A10":{"q":"A","s":"Livre","sts":1,"a":800},
+"A11":{"q":"A","s":"Livre","sts":1,"a":800},
+"B01":{"q":"B","s":"Livre","sts":1,"a":1480.88},
+"B02":{"q":"B","s":"Livre","sts":1,"a":1071.58},
+"B03":{"q":"B","s":"Livre","sts":1,"a":1432.31},
+"B04":{"q":"B","s":"Reservado","sts":3,"a":507.13},
+"B05":{"q":"H","s":"Reservado","sts":3,"a":425.61},
+"B06":{"q":"H","s":"Reservado","sts":3,"a":426.54},
+"C01":{"q":"C","s":"Livre","sts":1,"a":596.4},
+"C02":{"q":"C","s":"Livre","sts":1,"a":767.08},
+"C03":{"q":"C","s":"Livre","sts":1,"a":1219.96},
+"C04":{"q":"A","s":"Livre","sts":1,"a":796.76},
+"C05":{"q":"A","s":"Livre","sts":1,"a":932.03},
+"C06":{"q":"A","s":"Projeto","sts":5,"a":761.31},
+"C07":{"q":"B","s":"Livre","sts":1,"a":418.66},
+"C08":{"q":"C","s":"Livre","sts":1,"a":464.44},
+"C09":{"q":"C","s":"Vendido","sts":2,"a":499.75},
+"D01":{"q":"D","s":"Livre","sts":1,"a":883.28},
+"D02":{"q":"D","s":"Livre","sts":1,"a":480},
+"D03":{"q":"A","s":"Livre","sts":1,"a":714.2},
+"D04":{"q":"E","s":"Livre","sts":1,"a":681.64},
+"D05":{"q":"B","s":"Projeto","sts":5,"a":479.6},
+"D06":{"q":"D","s":"Livre","sts":1,"a":420},
+"D07":{"q":"D","s":"Livre","sts":1,"a":474.71},
+"D08":{"q":"D","s":"Livre","sts":1,"a":690},
+"E01":{"q":"D","s":"Livre","sts":1,"a":420},
+"E02":{"q":"D","s":"Livre","sts":1,"a":1095.29},
+"E03":{"q":"D","s":"Vendido","sts":2,"a":650.87},
+"E04":{"q":"E","s":"Vendido","sts":2,"a":420},
+"E05":{"q":"E","s":"Reservado","sts":3,"a":420},
+"E06":{"q":"E","s":"Projeto","sts":5,"a":480},
+"E07":{"q":"E","s":"Livre","sts":1,"a":877.16},
+"F01":{"q":"F","s":"Livre","sts":1,"a":497.59},
+"F02":{"q":"F","s":"Livre","sts":1,"a":463.05},
+"F03":{"q":"F","s":"Livre","sts":1,"a":461.74},
+"F04":{"q":"F","s":"Projeto","sts":5,"a":460.42},
+"F05":{"q":"F","s":"Livre","sts":1,"a":459.21},
+"F06":{"q":"F","s":"Livre","sts":1,"a":458.81},
+"F07":{"q":"F","s":"Reservado","sts":3,"a":420.81},
+"F08":{"q":"F","s":"Livre","sts":1,"a":420},
+"F09":{"q":"F","s":"Livre","sts":1,"a":420},
+"F10":{"q":"F","s":"Livre","sts":1,"a":420},
+"F11":{"q":"F","s":"Livre","sts":1,"a":420},
+"F12":{"q":"F","s":"Livre","sts":1,"a":464},
+"F13":{"q":"F","s":"Livre","sts":1,"a":406},
+"F14":{"q":"F","s":"Livre","sts":1,"a":406},
+"F15":{"q":"F","s":"Projeto","sts":5,"a":464},
+"F16":{"q":"F","s":"Livre","sts":1,"a":420},
+"F17":{"q":"F","s":"Livre","sts":1,"a":420},
+"F18":{"q":"F","s":"Livre","sts":1,"a":420},
+"F19":{"q":"F","s":"Vendido","sts":2,"a":420},
+"G01":{"q":"G","s":"Livre","sts":1,"a":480},
+"G02":{"q":"G","s":"Livre","sts":1,"a":420},
+"G03":{"q":"G","s":"Livre","sts":1,"a":420},
+"G04":{"q":"G","s":"Não Disponível","sts":4,"a":474.71},
+"G05":{"q":"G","s":"Não Disponível","sts":4,"a":420},
+"G06":{"q":"G","s":"Livre","sts":1,"a":420},
+"G07":{"q":"G","s":"Não Disponível","sts":4,"a":474.57},
+"G08":{"q":"G","s":"Não Disponível","sts":4,"a":420},
+"G09":{"q":"G","s":"Livre","sts":1,"a":420},
+"G10":{"q":"G","s":"Livre","sts":1,"a":480},
+"G11":{"q":"G","s":"Vendido","sts":2,"a":420},
+"G12":{"q":"G","s":"Vendido","sts":2,"a":420},
+"H01":{"q":"H","s":"Livre","sts":1,"a":452.01},
+"H02":{"q":"H","s":"Livre","sts":1,"a":422.83},
+"H03":{"q":"H","s":"Reservado","sts":3,"a":423.76},
+"H04":{"q":"H","s":"Reservado","sts":3,"a":424.69},
+"H05":{"q":"E","s":"Projeto","sts":5,"a":690},
+"H06":{"q":"E","s":"Vendido","sts":2,"a":474.57},
+"H07":{"q":"H","s":"Vendido","sts":2,"a":427.47},
+"H08":{"q":"H","s":"Reservado","sts":3,"a":432.52},
+"H09":{"q":"H","s":"Reservado","sts":3,"a":433.45},
+"H10":{"q":"H","s":"Vendido","sts":2,"a":434.28},
+"H11":{"q":"H","s":"Vendido","sts":2,"a":435.31},
+"H12":{"q":"H","s":"Livre","sts":1,"a":436.23},
+"H13":{"q":"H","s":"Livre","sts":1,"a":437.16},
+"H14":{"q":"H","s":"Livre","sts":1,"a":438.09},
+"H15":{"q":"H","s":"Não Disponível","sts":4,"a":439.01},
+"H16":{"q":"H","s":"Não Disponível","sts":4,"a":439.94},
+"H17":{"q":"H","s":"Não Disponível","sts":4,"a":440.87},
+"H18":{"q":"H","s":"Não Disponível","sts":4,"a":473.09},
+"I01":{"q":"J","s":"Livre","sts":1,"a":474.57},
+"I02":{"q":"J","s":"Livre","sts":1,"a":420},
+"I03":{"q":"J","s":"Livre","sts":1,"a":420},
+"I04":{"q":"J","s":"Livre","sts":1,"a":480},
+"I05":{"q":"I","s":"Livre","sts":1,"a":415.42},
+"I06":{"q":"I","s":"Livre","sts":1,"a":414.92},
+"I07":{"q":"I","s":"Não Disponível","sts":4,"a":1352.82},
+"I08":{"q":"I","s":"Não Disponível","sts":4,"a":1555.92},
+"I09":{"q":"I","s":"Não Disponível","sts":4,"a":1721.26},
+"J01":{"q":"I","s":"Não Disponível","sts":4,"a":415.92},
+"J02":{"q":"I","s":"Não Disponível","sts":4,"a":417.51},
+"J03":{"q":"I","s":"Projeto","sts":5,"a":416.61},
+"J04":{"q":"J","s":"Livre","sts":1,"a":420},
+"J05":{"q":"J","s":"Livre","sts":1,"a":420},
+"J06":{"q":"J","s":"Livre","sts":1,"a":420},
+"J07":{"q":"J","s":"Livre","sts":1,"a":420},
+"J08":{"q":"I","s":"Livre","sts":1,"a":418.46},
+"J09":{"q":"J","s":"Não Disponível","sts":4,"a":420},
+"J10":{"q":"J","s":"Não Disponível","sts":4,"a":420},
+"J11":{"q":"J","s":"Livre","sts":1,"a":420},
+"J12":{"q":"J","s":"Livre","sts":1,"a":420},
+"K01":{"q":"K","s":"Livre","sts":1,"a":480},
+"K02":{"q":"K","s":"Vendido","sts":2,"a":420},
+"K03":{"q":"K","s":"Não Disponível","sts":4,"a":420},
+"K04":{"q":"K","s":"Não Disponível","sts":4,"a":474.71},
+"K05":{"q":"K","s":"Livre","sts":1,"a":420},
+"K06":{"q":"K","s":"Livre","sts":1,"a":420},
+"K07":{"q":"K","s":"Vendido","sts":2,"a":420},
+"K08":{"q":"K","s":"Vendido","sts":2,"a":420},
+"K09":{"q":"K","s":"Não Disponível","sts":4,"a":420},
+"K10":{"q":"K","s":"Não Disponível","sts":4,"a":420},
+"K11":{"q":"K","s":"Livre","sts":1,"a":420},
+"K12":{"q":"K","s":"Vendido","sts":2,"a":420},
+"O01":{"q":"O","s":"Não Disponível","sts":4,"a":475.73},
+"O02":{"q":"O","s":"Não Disponível","sts":4,"a":444.97},
+"O03":{"q":"O","s":"Não Disponível","sts":4,"a":445.9},
+"O04":{"q":"O","s":"Não Disponível","sts":4,"a":574.67}
+};
+
+function fmtArea(a) {
+  return a.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' m²';
+}
+
+function updateBadge(status, sts) {
+  const b = document.getElementById('status-badge');
+  b.textContent = status;
+  b.className   = `status-badge sts-${sts}`;
+}
+
+function renderLot(lot) {
+  document.title = `Florescer — Terreno ${lot.id}`;
+  document.getElementById('lot-id').textContent    = lot.id;
+  document.getElementById('info-quadra').textContent = lot.q;
+  document.getElementById('info-area').textContent   = fmtArea(lot.a);
+  updateBadge(lot.s, lot.sts);
+
+  const msg = encodeURIComponent(`Olá! Tenho interesse no terreno ${lot.id} do Florescer Parque Residencial. Poderia me passar mais informações?`);
+  document.getElementById('whatsapp-btn').href = `https://wa.me/${PHONE}?text=${msg}`;
+}
+
+// ── Inicialização ──────────────────────────────────────────────────────
+const rawId = (new URLSearchParams(window.location.search).get('id') || '').trim().toUpperCase();
+const lot   = rawId ? LOT_DATA[rawId] : null;
+
+if (lot) {
+  lot.id = rawId;
+  renderLot(lot);
+} else {
+  document.getElementById('card').style.display       = 'none';
+  document.getElementById('not-found').style.display  = 'block';
+}
+
+// ── Sync status em tempo real com Google Sheets ────────────────────────
+function normKey(s) {
+  return (s||'').toString().toLowerCase().trim()
+    .replace(/[áàâã]/g,'a').replace(/[éèê]/g,'e')
+    .replace(/[íì]/g,'i').replace(/[óòôõ]/g,'o')
+    .replace(/[úù]/g,'u').replace(/ç/g,'c');
+}
+function parseCSV(text) {
+  const rows=[]; let cur=[],field='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){if(c==='"'&&text[i+1]==='"'){field+='"';i++;}else if(c==='"')q=false;else field+=c;}
+    else{if(c==='"')q=true;else if(c===','){cur.push(field);field='';}else if(c==='\n'){cur.push(field);rows.push(cur);cur=[];field='';}else if(c!=='\r')field+=c;}
+  }
+  if(field.length||cur.length){cur.push(field);rows.push(cur);}
+  return rows;
+}
+
+async function syncStatus() {
+  if (!lot) return;
+  try {
+    const res = await fetch(SHEET_URL, { cache: 'no-store' });
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text()).filter(r => r.some(c => c && c.trim()));
+    if (rows.length < 2) return;
+    const header = rows[0].map(normKey);
+    const ci = {};
+    header.forEach((h,i) => {
+      if (/^id$|lote|codigo|cod$/.test(h) && ci.id==null) ci.id=i;
+      if (/quadra|bloco/.test(h)) ci.quadra=i;
+      if (/^num|^n$|numero|n[°º]/.test(h)) ci.numero=i;
+      if (/status|situacao/.test(h)) ci.status=i;
+      if (/area|m2|m²|metragem/.test(h)) ci.area=i;
+    });
+    for (let r=1; r<rows.length; r++) {
+      const row = rows[r];
+      let lid = null;
+      if (ci.id!=null && row[ci.id]) lid = row[ci.id].toString().trim().toUpperCase();
+      else if (ci.quadra!=null && ci.numero!=null) {
+        const q = (row[ci.quadra]||'').toString().trim().toUpperCase();
+        const n = (row[ci.numero]||'').toString().trim().replace(/\D/g,'').padStart(2,'0');
+        if (q&&n) lid = q+n;
+      }
+      if (lid !== rawId) continue;
+      if (ci.status!=null) {
+        const st = STATUS_MAP[normKey(row[ci.status])];
+        if (st) { lot.s=st; lot.sts=STS_NUM[st]; }
+      }
+      if (ci.area!=null) {
+        const a = parseFloat((row[ci.area]||'').toString().replace(/\./g,'').replace(',','.'));
+        if (!isNaN(a) && a>0) lot.a=a;
+      }
+      renderLot(lot);
+      break;
+    }
+  } catch {}
+}
+
+if (lot) syncStatus();
+</script>
+</body>
+</html>

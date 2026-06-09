@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Florescer — Gerador de Placas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Russo+One&family=Big+Shoulders+Display:wght@900&family=Oswald:wght@700&family=Barlow+Condensed:wght@900&family=Teko:wght@600&family=Saira+Extra+Condensed:wght@800&family=Squada+One&family=Black+Han+Sans&family=Alfa+Slab+One&family=Ultra&family=Manrope:wght@800&family=Inter:wght@800&family=Montserrat:wght@900&family=Poppins:wght@800&family=Nunito+Sans:wght@800&family=Outfit:wght@800&family=Plus+Jakarta+Sans:wght@800&family=Space+Grotesk:wght@700&family=Work+Sans:wght@800&family=DM+Sans:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<style>
+:root {
+  --purple:    #5B2166;
+  --purple-dk: #3E1647;
+  --gold:      #C4A550;
+  --beige:     #E8E3D5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; background: var(--beige); color: var(--purple-dk); }
+
+/* ── Toolbar ──────────────────────────────────────────────────────────── */
+#toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--purple-dk);
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+#toolbar h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  flex: 1;
+  min-width: 160px;
+}
+#toolbar label { font-size: 12px; opacity: .7; white-space: nowrap; }
+#font-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+#font-select option { background: #3E1647; color: #fff; }
+.tb-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity .15s;
+}
+.tb-btn:hover { opacity: .85; }
+#btn-print { background: rgba(255,255,255,.15); color: #fff; }
+#btn-pdf   { background: var(--gold); color: var(--purple-dk); }
+
+/* ── Grade de pré-visualização ────────────────────────────────────────── */
+#grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+/* ── Placa — proporção 12×23 cm ───────────────────────────────────────── */
+/* cqw = % da largura do container → escala automaticamente em qualquer tamanho */
+.placa {
+  container-type: inline-size;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  aspect-ratio: 12 / 23;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  padding: 3.75cqw 4.85cqw 3.97cqw;
+}
+.placa-logo {
+  flex: 0 0 auto;
+  width: 100%;
+  margin-bottom: 0.88cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placa-logo img { width: 70%; object-fit: contain; display: block; }
+.placa-nome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8%;
+  text-align: center;
+  line-height: 1;
+  font-family: var(--plate-font, 'Nunito Sans', sans-serif);
+  font-weight: 800;
+  transform: translateX(3.53cqw);
+}
+.placa-nome .label-lote {
+  font-size: 8.38cqw;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 1.10cqw;
+  transform: translateX(-2.64cqw);
+}
+.placa-nome .id-lote {
+  font-size: 43.43cqw;
+  letter-spacing: 0.12em;
+  color: var(--purple);
+  display: block;
+  line-height: 0.9;
+}
+.placa-qr {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 47%;
+  margin-bottom: 3.09cqw;
+}
+.placa-qr canvas, .placa-qr img {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* ── Placa oculta para renderização PDF ───────────────────────────────── */
+#render-plate {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 480px;
+  height: 920px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  padding: 18px 23px 19px;
+}
+#render-plate .r-logo {
+  flex: 0 0 auto;
+  width: 100%;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#render-plate .r-logo img {
+  width: 70%;
+  object-fit: contain;
+  display: block;
+}
+#render-plate .r-nome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8%;
+  text-align: center;
+  line-height: 1;
+  transform: translateX(17px);
+}
+#render-plate .r-lbl {
+  display: block;
+  letter-spacing: 0.4em;
+  color: #C4A550;
+  margin-bottom: 5px;
+}
+#render-plate .r-idd {
+  display: block;
+  letter-spacing: 0.12em;
+  color: #5B2166;
+  line-height: 0.9;
+}
+#render-plate .r-qr {
+  flex: 0 0 auto;
+  width: 47%;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#render-plate .r-qr canvas,
+#render-plate .r-qr img {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* ── Overlay de progresso ─────────────────────────────────────────────── */
+#progress-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(30,20,50,.96);
+  z-index: 999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #fff;
+}
+#progress-overlay h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: var(--gold);
+}
+#progress-overlay p { font-size: 13px; opacity: .7; }
+#progress-bar-wrap {
+  width: 320px;
+  height: 8px;
+  background: rgba(255,255,255,.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+#progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width .3s; }
+#progress-overlay small { opacity: .4; font-size: 11px; }
+
+/* ── Impressão ────────────────────────────────────────────────────────── */
+@media print {
+  #toolbar { display: none; }
+  body { background: #fff; }
+  @page { size: 12cm 23cm; margin: 6mm; }
+  #grid { display: block; padding: 0; }
+  #render-plate { display: none !important; }
+  .placa {
+    width: calc(12cm - 12mm);
+    height: calc(23cm - 12mm);
+    border: none;
+    border-radius: 0;
+    padding: 0 6% 4%;
+    margin: 0;
+    page-break-after: always;
+    break-after: page;
+    aspect-ratio: unset;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>Florescer — Placas de Lote</h1>
+
+  <label for="font-select">Fonte:</label>
+  <select id="font-select" onchange="applyFont(this)">
+    <optgroup label="── Genéricas Bold ──">
+      <option value="'Manrope', sans-serif"          data-weight="800">Manrope ExtraBold</option>
+      <option value="'Montserrat', sans-serif"        data-weight="900">Montserrat Black (≈ Gotham)</option>
+      <option value="'Inter', sans-serif"             data-weight="800">Inter ExtraBold</option>
+      <option value="'Poppins', sans-serif"           data-weight="800">Poppins ExtraBold</option>
+      <option value="'Nunito Sans', sans-serif"       data-weight="800" selected>Nunito Sans ExtraBold</option>
+      <option value="'Outfit', sans-serif"            data-weight="800">Outfit ExtraBold</option>
+      <option value="'Plus Jakarta Sans', sans-serif" data-weight="800">Plus Jakarta Sans ExtraBold</option>
+      <option value="'Space Grotesk', sans-serif"     data-weight="700">Space Grotesk Bold</option>
+      <option value="'Work Sans', sans-serif"         data-weight="800">Work Sans ExtraBold</option>
+      <option value="'DM Sans', sans-serif"           data-weight="700">DM Sans Bold</option>
+    </optgroup>
+    <optgroup label="── Display / Impacto ──">
+      <option value="'Bebas Neue', sans-serif"                  data-weight="400">Bebas Neue</option>
+      <option value="'Russo One', sans-serif"                   data-weight="400">Russo One</option>
+      <option value="'Big Shoulders Display', sans-serif"       data-weight="900">Big Shoulders Display Black</option>
+      <option value="'Anton', sans-serif"                       data-weight="400">Anton</option>
+      <option value="'Oswald', sans-serif"                      data-weight="700">Oswald Bold</option>
+      <option value="'Barlow Condensed', sans-serif"            data-weight="900">Barlow Condensed Black</option>
+      <option value="'Teko', sans-serif"                        data-weight="600">Teko SemiBold</option>
+      <option value="'Saira Extra Condensed', sans-serif"       data-weight="800">Saira Extra Condensed</option>
+      <option value="'Squada One', sans-serif"                  data-weight="400">Squada One</option>
+      <option value="'Black Han Sans', sans-serif"              data-weight="400">Black Han Sans</option>
+      <option value="'Alfa Slab One', serif"                    data-weight="400">Alfa Slab One</option>
+      <option value="'Ultra', serif"                            data-weight="400">Ultra</option>
+      <option value="Impact, 'Arial Narrow', sans-serif"        data-weight="400">Impact</option>
+    </optgroup>
+  </select>
+
+  <span id="count-label" style="font-size:12px;opacity:.6;"></span>
+  <button class="tb-btn" id="btn-print" onclick="window.print()">Imprimir</button>
+  <button class="tb-btn" id="btn-pdf"   onclick="gerarPDF()">Gerar PDF com marcas de corte</button>
+</div>
+
+<!-- Placa oculta usada como template para renderização PDF -->
+<div id="render-plate">
+  <div class="r-logo"><img id="r-logo-img" src="LMV%20roxo%20e%20amarelo.png" alt="LMV" crossorigin="anonymous"></div>
+  <div class="r-nome">
+    <span class="r-lbl" id="r-lbl">LOTE</span>
+    <span class="r-idd" id="r-idd">A01</span>
+  </div>
+  <div class="r-qr" id="r-qr"></div>
+</div>
+
+<!-- Overlay de progresso -->
+<div id="progress-overlay">
+  <h2>Gerando PDF…</h2>
+  <p id="progress-text">Preparando…</p>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <small>Este processo pode levar alguns minutos</small>
+</div>
+
+<!-- Grade de pré-visualização -->
+<div id="grid"></div>
+
+<script>
+const BASE_URL = 'https://florescerparqueresidencial.com.br/mapa-vendas?id=';
+
+const LOTES = [
+  "A01","A02","A03","A04","A05","A06","A07","A08","A09","A10","A11",
+  "B01","B02","B03","B04","B05","B06",
+  "C01","C02","C03","C04","C05","C06","C07","C08","C09",
+  "D01","D02","D03","D04","D05","D06","D07","D08",
+  "E01","E02","E03","E04","E05","E06","E07",
+  "F01","F02","F03","F04","F05","F06","F07","F08","F09","F10",
+  "F11","F12","F13","F14","F15","F16","F17","F18","F19",
+  "G01","G02","G03","G04","G05","G06","G07","G08","G09","G10","G11","G12",
+  "H01","H02","H03","H04","H05","H06","H07","H08","H09","H10",
+  "H11","H12","H13","H14","H15","H16","H17","H18",
+  "I01","I02","I03","I04","I05","I06","I07","I08","I09",
+  "J01","J02","J03","J04","J05","J06","J07","J08","J09","J10","J11","J12",
+  "K01","K02","K03","K04","K05","K06","K07","K08","K09","K10","K11","K12",
+  "O01","O02","O03","O04"
+];
+
+document.getElementById('count-label').textContent = LOTES.length + ' lotes';
+
+// ── Gerar grade de pré-visualização ───────────────────────────────────
+const grid = document.getElementById('grid');
+LOTES.forEach(id => {
+  const placa = document.createElement('div');
+  placa.className = 'placa';
+  placa.innerHTML = `
+    <div class="placa-logo"><img src="LMV%20roxo%20e%20amarelo.png" alt="LMV"></div>
+    <div class="placa-nome">
+      <span class="label-lote">LOTE</span>
+      <span class="id-lote">${id}</span>
+    </div>
+    <div class="placa-qr" id="qr-${id}"></div>
+  `;
+  grid.appendChild(placa);
+  new QRCode(document.getElementById('qr-' + id), {
+    text: BASE_URL + id,
+    width: 120, height: 120,
+    colorDark: '#3E1647', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+});
+
+// ── Fonte ──────────────────────────────────────────────────────────────
+let currentFont   = "'Nunito Sans', sans-serif";
+let currentWeight = '800';
+
+function applyFont(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  currentFont   = opt.value;
+  currentWeight = opt.dataset.weight || '400';
+  document.querySelectorAll('.placa-nome').forEach(el => {
+    el.style.fontFamily  = currentFont;
+    el.style.fontWeight  = currentWeight;
+  });
+}
+
+// ── Geração de PDF ─────────────────────────────────────────────────────
+async function gerarPDF() {
+  await document.fonts.ready;
+
+  const overlay = document.getElementById('progress-overlay');
+  overlay.style.display = 'flex';
+
+  const { jsPDF } = window.jspdf;
+  // A4 em mm
+  const PW = 210, PH = 297;
+  // Placa em mm: 12×23 cm
+  const PLW = 120, PLH = 230;
+  // Offset para centralizar na página
+  const OX = (PW - PLW) / 2;   // 45 mm
+  const OY = (PH - PLH) / 2;   // 33.5 mm
+
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+  const renderEl = document.getElementById('render-plate');
+
+  // Configura fonte e peso no render-plate
+  ['#render-plate .r-nome','#render-plate .r-lbl','#render-plate .r-idd'].forEach(s => {
+    const el = document.querySelector(s);
+    el.style.fontFamily = currentFont;
+    el.style.fontWeight = currentWeight;
+  });
+
+  // Font-sizes escalados do editor (453.6px → 480px, fator 1.058)
+  document.querySelector('#render-plate .r-lbl').style.fontSize = '40px';
+  document.querySelector('#render-plate .r-idd').style.fontSize = '209px';
+  document.querySelector('#render-plate .r-lbl').style.transform = 'translateX(-13px)';
+
+  for (let i = 0; i < LOTES.length; i++) {
+    const id = LOTES[i];
+
+    // Atualiza conteúdo do render-plate
+    document.getElementById('r-idd').textContent = id;
+
+    // Regenera QR code
+    const qrEl = document.getElementById('r-qr');
+    qrEl.innerHTML = '';
+    new QRCode(qrEl, {
+      text: BASE_URL + id,
+      width: 225, height: 225,
+      colorDark: '#3E1647', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    // Aguarda QR renderizar
+    await new Promise(r => setTimeout(r, 80));
+
+    // Atualiza progresso
+    document.getElementById('progress-text').textContent =
+      `Placa ${i + 1} de ${LOTES.length} — ${id}`;
+    document.getElementById('progress-bar').style.width =
+      Math.round((i + 1) / LOTES.length * 100) + '%';
+
+    // Renderiza o render-plate em canvas
+    const canvas = await html2canvas(renderEl, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+    if (i > 0) doc.addPage();
+    doc.addImage(imgData, 'JPEG', OX, OY, PLW, PLH);
+    addCropMarks(doc, OX, OY, PLW, PLH);
+
+    // Libera memória
+    canvas.width = 0;
+    canvas.height = 0;
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  overlay.style.display = 'none';
+  doc.save('florescer-placas.pdf');
+}
+
+// Marcas de corte em CMYK preto de registro
+function addCropMarks(doc, x, y, w, h) {
+  doc.setDrawColor(0, 0, 0, 100);   // CMYK (C=0, M=0, Y=0, K=100)
+  doc.setLineWidth(0.25);
+
+  const gap = 2;   // espaço da linha de corte (mm)
+  const len = 5;   // comprimento da marca (mm)
+
+  // Superior esquerdo
+  doc.line(x - gap - len, y, x - gap, y);
+  doc.line(x, y - gap - len, x, y - gap);
+  // Superior direito
+  doc.line(x + w + gap, y, x + w + gap + len, y);
+  doc.line(x + w, y - gap - len, x + w, y - gap);
+  // Inferior esquerdo
+  doc.line(x - gap - len, y + h, x - gap, y + h);
+  doc.line(x, y + h + gap, x, y + h + gap + len);
+  // Inferior direito
+  doc.line(x + w + gap, y + h, x + w + gap + len, y + h);
+  doc.line(x + w, y + h + gap, x + w, y + h + gap + len);
+}
+</script>
+</body>
+</html>

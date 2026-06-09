@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor de Placa — Florescer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Russo+One&family=Big+Shoulders+Display:wght@900&family=Oswald:wght@700&family=Barlow+Condensed:wght@900&family=Teko:wght@600&family=Saira+Extra+Condensed:wght@800&family=Squada+One&family=Black+Han+Sans&family=Alfa+Slab+One&family=Ultra&family=Manrope:wght@800&family=Inter:wght@800&family=Montserrat:wght@900&family=Poppins:wght@800&family=Nunito+Sans:wght@800&family=Outfit:wght@800&family=Plus+Jakarta+Sans:wght@800&family=Space+Grotesk:wght@700&family=Work+Sans:wght@800&family=DM+Sans:wght@700&family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  --purple:    #5B2166;
+  --purple-dk: #3E1647;
+  --gold:      #C4A550;
+  --beige:     #E8E3D5;
+  --ui-bg:     #1e1e2e;
+  --ui-panel:  #2a2a3e;
+  --ui-border: #3e3e5e;
+  --ui-text:   #e0e0f0;
+  --ui-label:  #a0a0c0;
+  --ui-accent: #C4A550;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Raleway', sans-serif;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Cabeçalho ──────────────────────────────────────────────────────── */
+#header {
+  background: var(--purple-dk);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 12px;
+}
+#header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+#header p { font-size: 12px; color: #aaa; }
+#btn-apply {
+  padding: 8px 20px;
+  background: var(--gold);
+  color: var(--purple-dk);
+  border: none;
+  border-radius: 6px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#btn-apply:hover { opacity: .85; }
+
+/* ── Layout principal ───────────────────────────────────────────────── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Painel de pré-visualização ─────────────────────────────────────── */
+#preview-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #141420;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* A placa é renderizada em tamanho real (12cm × 23cm) e escalada por CSS */
+#placa-wrap {
+  transform-origin: center center;
+}
+
+.placa {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* Tamanho real — escalonado via JS */
+  width:  12cm;
+  height: 23cm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.placa-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placa-logo img { display: block; object-fit: contain; }
+.placa-nome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 1;
+}
+.placa-nome .lbl { color: var(--gold); letter-spacing: 0.35em; }
+.placa-nome .idd { color: var(--purple); letter-spacing: 0.12em; line-height: 0.9; }
+.placa-qr {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placa-qr canvas, .placa-qr img { display: block; }
+
+/* ── Painel de controles ────────────────────────────────────────────── */
+#controls {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--ui-panel);
+  border-left: 1px solid var(--ui-border);
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.group-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--ui-accent);
+  padding: 10px 0 4px;
+  border-bottom: 1px solid var(--ui-border);
+  margin-bottom: 4px;
+}
+.group-title:first-child { padding-top: 0; }
+
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+.ctrl-row label {
+  flex: 0 0 130px;
+  font-size: 12px;
+  color: var(--ui-label);
+}
+.ctrl-row input[type=range] {
+  flex: 1;
+  accent-color: var(--ui-accent);
+  cursor: pointer;
+}
+.ctrl-row .val {
+  flex: 0 0 44px;
+  text-align: right;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--ui-text);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  padding: 2px 4px;
+  cursor: text;
+}
+.ctrl-row .val:focus { outline: 1px solid var(--ui-accent); }
+
+/* Output CSS */
+#css-output-wrap {
+  margin-top: 10px;
+  border-top: 1px solid var(--ui-border);
+  padding-top: 10px;
+}
+#css-output-wrap p { font-size: 11px; color: var(--ui-label); margin-bottom: 6px; }
+#css-output {
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 10px;
+  font-family: monospace;
+  color: #90ee90;
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+#btn-copy {
+  margin-top: 6px;
+  width: 100%;
+  padding: 7px;
+  background: var(--ui-border);
+  color: var(--ui-text);
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+#btn-copy:hover { background: var(--purple); }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div>
+    <h1>Editor de Placa — Florescer</h1>
+    <p>Ajuste os sliders e clique "Aplicar ao gerar-placas" quando estiver satisfeito</p>
+  </div>
+  <button id="btn-apply" onclick="applyToGerar()">Aplicar ao gerar-placas →</button>
+</div>
+
+<div id="main">
+
+  <!-- Prévia da placa -->
+  <div id="preview-area">
+    <div id="placa-wrap">
+      <div class="placa" id="placa">
+        <div class="placa-logo" id="el-logo">
+          <img id="logo-img" src="LMV%20roxo%20e%20amarelo.png" alt="LMV">
+        </div>
+        <div class="placa-nome" id="el-nome">
+          <span class="lbl" id="el-lbl">LOTE</span>
+          <span class="idd" id="el-idd">E01</span>
+        </div>
+        <div class="placa-qr" id="el-qr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel de controles -->
+  <div id="controls">
+
+    <div class="group-title">Fonte do Texto</div>
+    <div class="ctrl-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+      <label style="flex:unset;">Escolha a fonte:</label>
+      <select id="font-select" onchange="changeFont(this)"
+        style="width:100%; padding:6px 8px; background:var(--ui-bg); color:var(--ui-text); border:1px solid var(--ui-border); border-radius:4px; font-size:13px; cursor:pointer;">
+        <optgroup label="── Genéricas Bold ──">
+          <option value="'Manrope', sans-serif"          data-weight="800">Manrope ExtraBold</option>
+          <option value="'Montserrat', sans-serif"        data-weight="900">Montserrat Black (≈ Gotham)</option>
+          <option value="'Inter', sans-serif"             data-weight="800">Inter ExtraBold</option>
+          <option value="'Poppins', sans-serif"           data-weight="800">Poppins ExtraBold</option>
+          <option value="'Nunito Sans', sans-serif"       data-weight="800">Nunito Sans ExtraBold</option>
+          <option value="'Outfit', sans-serif"            data-weight="800">Outfit ExtraBold</option>
+          <option value="'Plus Jakarta Sans', sans-serif" data-weight="800">Plus Jakarta Sans ExtraBold</option>
+          <option value="'Space Grotesk', sans-serif"     data-weight="700">Space Grotesk Bold</option>
+          <option value="'Work Sans', sans-serif"         data-weight="800">Work Sans ExtraBold</option>
+          <option value="'DM Sans', sans-serif"           data-weight="700">DM Sans Bold</option>
+        </optgroup>
+        <optgroup label="── Display / Impacto ──">
+          <option value="'Bebas Neue', sans-serif"                  data-weight="400">Bebas Neue</option>
+          <option value="'Russo One', sans-serif"                   data-weight="400">Russo One</option>
+          <option value="'Big Shoulders Display', sans-serif"       data-weight="900">Big Shoulders Display Black</option>
+          <option value="'Anton', sans-serif"                       data-weight="400">Anton</option>
+          <option value="'Oswald', sans-serif"                      data-weight="700">Oswald Bold</option>
+          <option value="'Barlow Condensed', sans-serif"            data-weight="900">Barlow Condensed Black</option>
+          <option value="'Teko', sans-serif"                        data-weight="600">Teko SemiBold</option>
+          <option value="'Saira Extra Condensed', sans-serif"       data-weight="800">Saira Extra Condensed</option>
+          <option value="'Squada One', sans-serif"                  data-weight="400">Squada One</option>
+          <option value="'Black Han Sans', sans-serif"              data-weight="400">Black Han Sans</option>
+          <option value="'Alfa Slab One', serif"                    data-weight="400">Alfa Slab One</option>
+          <option value="'Ultra', serif"                            data-weight="400">Ultra</option>
+          <option value="Impact, 'Arial Narrow', sans-serif"        data-weight="400">Impact</option>
+        </optgroup>
+      </select>
+      <div id="font-preview" style="font-size:28px; letter-spacing:3px; color:var(--ui-accent); padding:4px 0; font-family:'Bebas Neue',sans-serif;">LOTE E01</div>
+    </div>
+
+    <div class="group-title">Placa</div>
+    <div class="ctrl-row">
+      <label>Margem superior (px)</label>
+      <input type="range" id="s-pad-top" min="0" max="40" value="0" step="1">
+      <span class="val" id="v-pad-top" contenteditable>0</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Margem inferior (px)</label>
+      <input type="range" id="s-pad-bot" min="0" max="60" value="18" step="1">
+      <span class="val" id="v-pad-bot" contenteditable>18</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Margem lateral (px)</label>
+      <input type="range" id="s-pad-side" min="0" max="60" value="22" step="1">
+      <span class="val" id="v-pad-side" contenteditable>22</span>
+    </div>
+
+    <div class="group-title">Logo</div>
+    <div class="ctrl-row">
+      <label>Largura (%)</label>
+      <input type="range" id="s-logo-w" min="30" max="100" value="100" step="1">
+      <span class="val" id="v-logo-w" contenteditable>100</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Espaço abaixo (px)</label>
+      <input type="range" id="s-logo-mb" min="0" max="40" value="4" step="1">
+      <span class="val" id="v-logo-mb" contenteditable>4</span>
+    </div>
+
+    <div class="group-title">Texto "LOTE"</div>
+    <div class="ctrl-row">
+      <label>Tamanho (px)</label>
+      <input type="range" id="s-lbl-sz" min="8" max="60" value="22" step="1">
+      <span class="val" id="v-lbl-sz" contenteditable>22</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Espaço abaixo (px)</label>
+      <input type="range" id="s-lbl-mb" min="0" max="20" value="2" step="1">
+      <span class="val" id="v-lbl-mb" contenteditable>2</span>
+    </div>
+
+    <div class="group-title">Número do Lote</div>
+    <div class="ctrl-row">
+      <label>Tamanho (px)</label>
+      <input type="range" id="s-idd-sz" min="20" max="300" value="72" step="1">
+      <span class="val" id="v-idd-sz" contenteditable>72</span>
+    </div>
+
+    <div class="group-title">Posição do Texto</div>
+    <div class="ctrl-row">
+      <label>Deslocar para baixo (%)</label>
+      <input type="range" id="s-nome-pt" min="0" max="50" value="8" step="1">
+      <span class="val" id="v-nome-pt" contenteditable>8</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Lateral — bloco todo (px)</label>
+      <input type="range" id="s-nome-tx" min="-200" max="200" value="0" step="1">
+      <span class="val" id="v-nome-tx" contenteditable>0</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Lateral — "LOTE" (px)</label>
+      <input type="range" id="s-lbl-tx" min="-200" max="200" value="0" step="1">
+      <span class="val" id="v-lbl-tx" contenteditable>0</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Lateral — número (px)</label>
+      <input type="range" id="s-idd-tx" min="-200" max="200" value="0" step="1">
+      <span class="val" id="v-idd-tx" contenteditable>0</span>
+    </div>
+
+    <div class="group-title">QR Code</div>
+    <div class="ctrl-row">
+      <label>Tamanho (%)</label>
+      <input type="range" id="s-qr-w" min="15" max="90" value="47" step="1">
+      <span class="val" id="v-qr-w" contenteditable>47</span>
+    </div>
+    <div class="ctrl-row">
+      <label>Espaço abaixo (px)</label>
+      <input type="range" id="s-qr-mb" min="0" max="40" value="14" step="1">
+      <span class="val" id="v-qr-mb" contenteditable>14</span>
+    </div>
+
+    <div id="css-output-wrap">
+      <p>Valores CSS gerados:</p>
+      <div id="css-output"></div>
+      <button id="btn-copy" onclick="copyCSS()">Copiar CSS</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function changeFont(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const family = opt.value;
+  const weight = opt.dataset.weight || '400';
+  const nome = document.querySelector('.placa-nome');
+  nome.style.fontFamily = family;
+  nome.style.fontWeight = weight;
+  const prev = document.getElementById('font-preview');
+  prev.style.fontFamily = family;
+  prev.style.fontWeight = weight;
+  updateCSS();
+}
+
+// Gera QR code de exemplo
+new QRCode(document.getElementById('el-qr'), {
+  text: 'https://gustavo1209-ship-it.github.io/site-florescer/lote.html?id=E01',
+  width: 200, height: 200,
+  colorDark: '#3E1647', colorLight: '#ffffff',
+  correctLevel: QRCode.CorrectLevel.M
+});
+
+// Escala a placa para caber na área de preview
+function scaleCard() {
+  const area  = document.getElementById('preview-area');
+  const wrap  = document.getElementById('placa-wrap');
+  const placa = document.getElementById('placa');
+  const aw = area.clientWidth  - 40;
+  const ah = area.clientHeight - 40;
+  // Placa real em px (96dpi: 1cm = ~37.8px)
+  const pw = 12 * 37.8;
+  const ph = 23 * 37.8;
+  const scale = Math.min(aw / pw, ah / ph, 1);
+  wrap.style.transform = `scale(${scale})`;
+  wrap.style.width  = pw + 'px';
+  wrap.style.height = ph + 'px';
+}
+window.addEventListener('resize', scaleCard);
+scaleCard();
+
+// Controles
+const controls = [
+  { id: 's-pad-top',  vid: 'v-pad-top',  apply: v => { document.getElementById('placa').style.paddingTop = v + 'px'; } },
+  { id: 's-pad-bot',  vid: 'v-pad-bot',  apply: v => { document.getElementById('placa').style.paddingBottom = v + 'px'; } },
+  { id: 's-pad-side', vid: 'v-pad-side', apply: v => { document.getElementById('placa').style.paddingLeft = v + 'px'; document.getElementById('placa').style.paddingRight = v + 'px'; } },
+  { id: 's-logo-w',   vid: 'v-logo-w',   apply: v => { document.getElementById('logo-img').style.width = v + '%'; } },
+  { id: 's-logo-mb',  vid: 'v-logo-mb',  apply: v => { document.getElementById('el-logo').style.marginBottom = v + 'px'; } },
+  { id: 's-lbl-sz',   vid: 'v-lbl-sz',   apply: v => { document.getElementById('el-lbl').style.fontSize = v + 'px'; } },
+  { id: 's-lbl-mb',   vid: 'v-lbl-mb',   apply: v => { document.getElementById('el-lbl').style.marginBottom = v + 'px'; } },
+  { id: 's-idd-sz',   vid: 'v-idd-sz',   apply: v => { document.getElementById('el-idd').style.fontSize = v + 'px'; } },
+  { id: 's-nome-pt',  vid: 'v-nome-pt',  apply: v => { document.getElementById('el-nome').style.paddingTop = v + '%'; } },
+  { id: 's-nome-tx',  vid: 'v-nome-tx',  apply: v => { document.getElementById('el-nome').style.transform = `translateX(${v}px)`; } },
+  { id: 's-lbl-tx',   vid: 'v-lbl-tx',   apply: v => { document.getElementById('el-lbl').style.transform  = `translateX(${v}px)`; } },
+  { id: 's-idd-tx',   vid: 'v-idd-tx',   apply: v => { document.getElementById('el-idd').style.transform  = `translateX(${v}px)`; } },
+  { id: 's-qr-w',     vid: 'v-qr-w',     apply: v => { const qr = document.getElementById('el-qr'); qr.style.width = v + '%'; const c = qr.querySelector('canvas,img'); if(c){ c.style.width='100%'; c.style.height='auto'; } } },
+  { id: 's-qr-mb',    vid: 'v-qr-mb',    apply: v => { document.getElementById('el-qr').style.marginBottom = v + 'px'; } },
+];
+
+function updateCSS() {
+  const get = id => parseInt(document.getElementById(id).value);
+  const fontFamily = document.getElementById('font-select').value;
+  const css =
+`/* Fonte selecionada: ${fontFamily} */
+.placa-nome { font-family: ${fontFamily}; }
+.placa {
+  padding: ${get('s-pad-top')}px ${get('s-pad-side')}px ${get('s-pad-bot')}px;
+}
+.placa-logo {
+  margin-bottom: ${get('s-logo-mb')}px;
+}
+.placa-logo img {
+  width: ${get('s-logo-w')}%;
+}
+.placa-nome {
+  padding-top: ${get('s-nome-pt')}%;
+  transform: translateX(${get('s-nome-tx')}px);
+}
+.placa-nome .label-lote {
+  font-size: ${get('s-lbl-sz')}px;
+  margin-bottom: ${get('s-lbl-mb')}px;
+  transform: translateX(${get('s-lbl-tx')}px);
+}
+.placa-nome .id-lote {
+  font-size: ${get('s-idd-sz')}px;
+  transform: translateX(${get('s-idd-tx')}px);
+}
+.placa-qr {
+  width: ${get('s-qr-w')}%;
+  margin-bottom: ${get('s-qr-mb')}px;
+}`;
+  document.getElementById('css-output').textContent = css;
+}
+
+controls.forEach(({ id, vid, apply }) => {
+  const slider = document.getElementById(id);
+  const valEl  = document.getElementById(vid);
+
+  function sync(v) {
+    slider.value = v;
+    valEl.textContent = v;
+    apply(parseInt(v));
+    updateCSS();
+  }
+
+  slider.addEventListener('input', () => sync(slider.value));
+
+  valEl.addEventListener('blur', () => {
+    const v = parseInt(valEl.textContent);
+    if (!isNaN(v)) sync(Math.min(Math.max(v, parseInt(slider.min)), parseInt(slider.max)));
+    else valEl.textContent = slider.value;
+  });
+  valEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); valEl.blur(); } });
+
+  // Aplica valor inicial
+  apply(parseInt(slider.value));
+});
+
+updateCSS();
+
+function copyCSS() {
+  navigator.clipboard.writeText(document.getElementById('css-output').textContent)
+    .then(() => { document.getElementById('btn-copy').textContent = '✓ Copiado!'; setTimeout(() => document.getElementById('btn-copy').textContent = 'Copiar CSS', 2000); });
+}
+
+function applyToGerar() {
+  alert('Anote ou copie os valores CSS acima e me passe no chat — aplico em gerar-placas.html para todas as 127 placas.');
+}
+</script>
+</body>
+</html>

@@ -1102,6 +1102,15 @@ function focusLot(lid) {
 window.addEventListener('load', () => {
   requestAnimationFrame(fitAndCenter);
   setTimeout(fitAndCenter, 250); // fallback: iOS pode não ter dimensões prontas no primeiro rAF
+
+  // Abre lote direto se ?id= vier na URL (acesso via QR code)
+  const paramId = new URLSearchParams(window.location.search).get('id');
+  if (paramId) setTimeout(() => focusLot(paramId.toUpperCase()), 600);
+});
+
+// Recebe id do lote via postMessage do Webflow (quando embutido em iframe)
+window.addEventListener('message', e => {
+  if (e.data && e.data.focusLot) focusLot(String(e.data.focusLot).toUpperCase());
 });
 </script>
 </body>
