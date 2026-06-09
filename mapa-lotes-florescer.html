@@ -483,6 +483,10 @@ body { -webkit-user-select: none; }
       <span class="info-label">Lote Nº</span>
       <span class="info-value" id="info-num">—</span>
     </div>
+    <div class="info-row" id="info-row-tipo" style="display:none">
+      <span class="info-label">Tipo</span>
+      <span class="info-value" id="info-tipo">—</span>
+    </div>
     <div class="info-row" id="info-row-dim" style="display:none">
       <span class="info-label">Dimensões</span>
       <span class="info-value" id="info-dim">—</span>
@@ -901,6 +905,7 @@ async function syncFromSheet() {
       if (/area|m2|m²|metragem/.test(h)) colIdx.area = i;
       if (/dimens|frente|medida/.test(h)) colIdx.dim  = i;
       if (/desc|observ|obs$|nota/.test(h)) colIdx.desc = i;
+      if (/^tipo$|tipo.lote|tipo.terreno/.test(h)) colIdx.tipo = i;
     });
     let updated = 0;
     for (let r = 1; r < rows.length; r++) {
@@ -935,6 +940,10 @@ async function syncFromSheet() {
       if (colIdx.desc != null) {
         const v = (row[colIdx.desc] || '').trim();
         if (v) { LOT_DATA[lid].desc = v; changed = true; }
+      }
+      if (colIdx.tipo != null) {
+        const v = (row[colIdx.tipo] || '').trim();
+        if (v) { LOT_DATA[lid].tipo = v; changed = true; }
       }
       if (changed) updated++;
     }
@@ -1036,6 +1045,10 @@ function showInfo(lid) {
   const badge = document.getElementById('info-badge');
   badge.textContent = d.status;
   badge.className   = BADGE_CLASS[d.status] || 'badge-1';
+
+  const rowTipo = document.getElementById('info-row-tipo');
+  if (d.tipo) { document.getElementById('info-tipo').textContent = d.tipo; rowTipo.style.display = ''; }
+  else        { rowTipo.style.display = 'none'; }
 
   const rowDim  = document.getElementById('info-row-dim');
   const rowDesc = document.getElementById('info-row-desc');
