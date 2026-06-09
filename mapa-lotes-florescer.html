@@ -483,6 +483,14 @@ body { -webkit-user-select: none; }
       <span class="info-label">Lote Nº</span>
       <span class="info-value" id="info-num">—</span>
     </div>
+    <div class="info-row" id="info-row-dim" style="display:none">
+      <span class="info-label">Dimensões</span>
+      <span class="info-value" id="info-dim">—</span>
+    </div>
+    <div class="info-row" id="info-row-desc" style="display:none">
+      <span class="info-label">Descrição</span>
+      <span class="info-value" id="info-desc" style="font-size:0.85em;line-height:1.4">—</span>
+    </div>
   </div>
   <div id="info-footer">
     <a id="whatsapp-btn" href="#" target="_blank">
@@ -891,6 +899,8 @@ async function syncFromSheet() {
       if (/^num|^n$|numero|n[°º]/.test(h)) colIdx.numero = i;
       if (/status|situacao/.test(h)) colIdx.status = i;
       if (/area|m2|m²|metragem/.test(h)) colIdx.area = i;
+      if (/dimens|frente|medida/.test(h)) colIdx.dim  = i;
+      if (/desc|observ|obs$|nota/.test(h)) colIdx.desc = i;
     });
     let updated = 0;
     for (let r = 1; r < rows.length; r++) {
@@ -917,6 +927,14 @@ async function syncFromSheet() {
           LOT_DATA[lid].area = a;
           changed = true;
         }
+      }
+      if (colIdx.dim != null) {
+        const v = (row[colIdx.dim] || '').trim();
+        if (v) { LOT_DATA[lid].dim = v; changed = true; }
+      }
+      if (colIdx.desc != null) {
+        const v = (row[colIdx.desc] || '').trim();
+        if (v) { LOT_DATA[lid].desc = v; changed = true; }
       }
       if (changed) updated++;
     }
@@ -1018,9 +1036,18 @@ function showInfo(lid) {
   const badge = document.getElementById('info-badge');
   badge.textContent = d.status;
   badge.className   = BADGE_CLASS[d.status] || 'badge-1';
+
+  const rowDim  = document.getElementById('info-row-dim');
+  const rowDesc = document.getElementById('info-row-desc');
+  if (d.dim)  { document.getElementById('info-dim').textContent  = d.dim;  rowDim.style.display  = ''; }
+  else        { rowDim.style.display  = 'none'; }
+  if (d.desc) { document.getElementById('info-desc').textContent = d.desc; rowDesc.style.display = ''; }
+  else        { rowDesc.style.display = 'none'; }
+
+  const extra = (d.dim  ? `\nDimensões: ${d.dim}` : '') + (d.desc ? `\n${d.desc}` : '');
   const msg = encodeURIComponent(
     `Olá! Tenho interesse no Lote ${lid} (Quadra ${d.quadra}) do Florescer Parque Residencial.\n` +
-    `Área: ${d.area.toFixed(2)} m² | Status: ${d.status}\n` +
+    `Área: ${d.area.toFixed(2)} m² | Status: ${d.status}${extra}\n` +
     `Poderia me passar mais informações?`
   );
   document.getElementById('whatsapp-btn').href = `https://wa.me/5554996098638?text=${msg}`;
