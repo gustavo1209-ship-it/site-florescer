@@ -2,27 +2,48 @@
 (function(){
   var id = new URLSearchParams(window.location.search).get('id');
   if (!id) return;
+  var done = false;
 
-  function injectSrc() {
-    var iframe = document.querySelector('iframe');
-    if (!iframe) return;
-    var src = iframe.getAttribute('src') || '';
-    if (!src || src.indexOf('id=') !== -1) return; // já tem ?id=
-    iframe.src = src + (src.indexOf('?') !== -1 ? '&' : '?') + 'id=' + encodeURIComponent(id);
+  function inject(el) {
+    if (done || !el || el.tagName !== 'IFRAME') return;
+    var src = el.getAttribute('src') || '';
+    if (!src) return;
+    // Alvo: iframe do mapa Florescer (github.io ou mapa-lotes)
+    if (src.indexOf('github.io/site-florescer') === -1 && src.indexOf('mapa-lotes') === -1) return;
+    if (src.indexOf('id=') !== -1) return;
+    done = true;
+    el.src = src + (src.indexOf('?') !== -1 ? '&' : '?') + 'id=' + encodeURIComponent(id);
   }
 
-  function postRelay() {
-    var iframe = document.querySelector('iframe');
-    if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage({ focusLot: id }, '*');
+  // Verifica iframes já presentes
+  [].forEach.call(document.querySelectorAll('iframe'), inject);
+
+  // MutationObserver: captura o iframe assim que o Webflow o adicionar ao DOM
+  if (!done) {
+    var obs = new MutationObserver(function(muts) {
+      muts.forEach(function(m) {
+        [].forEach.call(m.addedNodes, function(n) {
+          if (!n || n.nodeType !== 1) return;
+          if (n.tagName === 'IFRAME') inject(n);
+          if (n.querySelectorAll) [].forEach.call(n.querySelectorAll('iframe'), inject);
+        });
+      });
+      if (done) obs.disconnect();
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+    setTimeout(function(){ obs.disconnect(); }, 15000);
   }
 
-  // Injeta no src o mais cedo possível (antes do iframe carregar)
-  document.addEventListener('DOMContentLoaded', injectSrc);
-  // Fallback: postMessage após tudo carregado
+  // Fallback: postMessage para iframe já carregado
   window.addEventListener('load', function() {
-    injectSrc();
-    setTimeout(postRelay, 600);
-    setTimeout(postRelay, 1800);
+    [].forEach.call(document.querySelectorAll('iframe'), function(f) {
+      if (f.contentWindow) f.contentWindow.postMessage({ focusLot: id }, '*');
+    });
+    setTimeout(function() {
+      [].forEach.call(document.querySelectorAll('iframe'), function(f) {
+        if (f.contentWindow) f.contentWindow.postMessage({ focusLot: id }, '*');
+      });
+    }, 1500);
   });
 }());
 
