@@ -1023,7 +1023,6 @@ const infoPanel = document.getElementById('info-panel');
 document.getElementById('info-close').onclick = () => {
   infoPanel.classList.remove('visible');
   document.querySelectorAll('.lote.selected').forEach(el => el.classList.remove('selected'));
-  goHome();
 };
 
 function showInfo(lid) {
@@ -1110,21 +1109,25 @@ searchInput.addEventListener('keydown', e => {
   }
 });
 
-function focusLot(lid) {
+function focusLot(lid, zoom = true) {
   const d = LOT_DATA[lid]; if (!d) return;
-  let cx = d.centroid ? d.centroid[0] : d.pts.reduce((s,p)=>s+p[0],0)/d.pts.length;
-  let cy = d.centroid ? d.centroid[1] : d.pts.reduce((s,p)=>s+p[1],0)/d.pts.length;
-  if (MOB) { const t = cy; cy = 1920 - cx; cx = t; }
-  const targetScale = 3;
-  panzoom.zoom(targetScale, {animate:true});
-  setTimeout(() => {
-    const svgW = mapCont.clientWidth, svgH = mapCont.clientHeight;
-    panzoom.pan(svgW/2 - cx*targetScale, svgH/2 - cy*targetScale, {animate:true});
-  }, 200);
   document.querySelectorAll('.lote.selected').forEach(el=>el.classList.remove('selected'));
   const poly = document.querySelector(`[data-id="${lid}"].lote`);
   if (poly) poly.classList.add('selected');
-  setTimeout(() => showInfo(lid), 300);
+  if (zoom) {
+    let cx = d.centroid ? d.centroid[0] : d.pts.reduce((s,p)=>s+p[0],0)/d.pts.length;
+    let cy = d.centroid ? d.centroid[1] : d.pts.reduce((s,p)=>s+p[1],0)/d.pts.length;
+    if (MOB) { const t = cy; cy = 1920 - cx; cx = t; }
+    const targetScale = 3;
+    panzoom.zoom(targetScale, {animate:true});
+    setTimeout(() => {
+      const svgW = mapCont.clientWidth, svgH = mapCont.clientHeight;
+      panzoom.pan(svgW/2 - cx*targetScale, svgH/2 - cy*targetScale, {animate:true});
+    }, 200);
+    setTimeout(() => showInfo(lid), 300);
+  } else {
+    showInfo(lid);
+  }
 }
 
 // Estado inicial do mapa — salvo após fitAndCenter para restaurar no fechar painel
@@ -1150,14 +1153,14 @@ window.addEventListener('load', () => {
     }, 100);
   }, 250);
 
-  // Abre lote direto se ?id= vier na URL (acesso via QR code)
+  // Abre lote via QR code — sem zoom, mapa fica inteiro
   const paramId = new URLSearchParams(window.location.search).get('id');
-  if (paramId) setTimeout(() => focusLot(paramId.toUpperCase()), 600);
+  if (paramId) setTimeout(() => focusLot(paramId.toUpperCase(), false), 600);
 });
 
-// Recebe id do lote via postMessage do Webflow (quando embutido em iframe)
+// Recebe id do lote via postMessage do Webflow — sem zoom
 window.addEventListener('message', e => {
-  if (e.data && e.data.focusLot) focusLot(String(e.data.focusLot).toUpperCase());
+  if (e.data && e.data.focusLot) focusLot(String(e.data.focusLot).toUpperCase(), false);
 });
 </script>
 </body>
