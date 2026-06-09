@@ -1021,12 +1021,9 @@ svgEl.addEventListener('mousemove', e => {
 // ── Info Panel ──────────────────────────────────────────────────────────
 const infoPanel = document.getElementById('info-panel');
 document.getElementById('info-close').onclick = () => {
-  if (window.location.search) {
-    window.location.replace(window.location.pathname);
-  } else {
-    infoPanel.classList.remove('visible');
-    document.querySelectorAll('.lote.selected').forEach(el => el.classList.remove('selected'));
-  }
+  infoPanel.classList.remove('visible');
+  document.querySelectorAll('.lote.selected').forEach(el => el.classList.remove('selected'));
+  document.getElementById('btn-reset').click();
 };
 
 function showInfo(lid) {
