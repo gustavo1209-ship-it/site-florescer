@@ -1006,7 +1006,7 @@ function fitAndCenter() {
 
 document.getElementById('btn-zoom-in').onclick  = () => panzoom.zoomIn();
 document.getElementById('btn-zoom-out').onclick = () => panzoom.zoomOut();
-document.getElementById('btn-reset').onclick    = fitAndCenter;
+document.getElementById('btn-reset').onclick    = () => { fitAndCenter(); };
 svgEl.addEventListener('mousedown', () => mapCont.classList.add('grabbing'));
 document.addEventListener('mouseup',  () => mapCont.classList.remove('grabbing'));
 
@@ -1023,7 +1023,7 @@ const infoPanel = document.getElementById('info-panel');
 document.getElementById('info-close').onclick = () => {
   infoPanel.classList.remove('visible');
   document.querySelectorAll('.lote.selected').forEach(el => el.classList.remove('selected'));
-  document.getElementById('btn-reset').click();
+  goHome();
 };
 
 function showInfo(lid) {
@@ -1127,10 +1127,28 @@ function focusLot(lid) {
   setTimeout(() => showInfo(lid), 300);
 }
 
+// Estado inicial do mapa — salvo após fitAndCenter para restaurar no fechar painel
+let homeScale = null, homePanX = null, homePanY = null;
+
+function goHome() {
+  if (homeScale === null) return;
+  panzoom.zoom(homeScale, { animate: true });
+  setTimeout(() => panzoom.pan(homePanX, homePanY, { animate: true }), 200);
+}
+
 // Aguarda o browser terminar de renderizar para então ajustar e centralizar
 window.addEventListener('load', () => {
   requestAnimationFrame(fitAndCenter);
-  setTimeout(fitAndCenter, 250); // fallback: iOS pode não ter dimensões prontas no primeiro rAF
+  setTimeout(() => {
+    fitAndCenter();
+    // Salva estado após fitAndCenter estabilizar
+    setTimeout(() => {
+      homeScale = panzoom.getScale();
+      const p   = panzoom.getPan();
+      homePanX  = p.x;
+      homePanY  = p.y;
+    }, 100);
+  }, 250);
 
   // Abre lote direto se ?id= vier na URL (acesso via QR code)
   const paramId = new URLSearchParams(window.location.search).get('id');
