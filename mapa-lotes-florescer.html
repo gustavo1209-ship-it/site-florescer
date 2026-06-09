@@ -1114,7 +1114,7 @@ function focusLot(lid) {
   let cx = d.centroid ? d.centroid[0] : d.pts.reduce((s,p)=>s+p[0],0)/d.pts.length;
   let cy = d.centroid ? d.centroid[1] : d.pts.reduce((s,p)=>s+p[1],0)/d.pts.length;
   if (MOB) { const t = cy; cy = 1920 - cx; cx = t; }
-  const targetScale = 6;
+  const targetScale = 3;
   panzoom.zoom(targetScale, {animate:true});
   setTimeout(() => {
     const svgW = mapCont.clientWidth, svgH = mapCont.clientHeight;
