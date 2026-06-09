@@ -2,11 +2,28 @@
 (function(){
   var id = new URLSearchParams(window.location.search).get('id');
   if (!id) return;
-  function relay() {
+
+  function injectSrc() {
+    var iframe = document.querySelector('iframe');
+    if (!iframe) return;
+    var src = iframe.getAttribute('src') || '';
+    if (!src || src.indexOf('id=') !== -1) return; // já tem ?id=
+    iframe.src = src + (src.indexOf('?') !== -1 ? '&' : '?') + 'id=' + encodeURIComponent(id);
+  }
+
+  function postRelay() {
     var iframe = document.querySelector('iframe');
     if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage({ focusLot: id }, '*');
   }
-  window.addEventListener('load', function(){ relay(); setTimeout(relay, 800); setTimeout(relay, 2000); });
+
+  // Injeta no src o mais cedo possível (antes do iframe carregar)
+  document.addEventListener('DOMContentLoaded', injectSrc);
+  // Fallback: postMessage após tudo carregado
+  window.addEventListener('load', function() {
+    injectSrc();
+    setTimeout(postRelay, 600);
+    setTimeout(postRelay, 1800);
+  });
 }());
 
 (function(){
