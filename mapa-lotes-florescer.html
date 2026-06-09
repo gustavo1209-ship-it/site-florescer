@@ -948,6 +948,11 @@ async function syncFromSheet() {
       if (changed) updated++;
     }
     updateStats();
+    // Atualiza painel se já estiver aberto (resolve race condition com QR code)
+    if (infoPanel.classList.contains('visible')) {
+      const sel = document.querySelector('.lote.selected');
+      if (sel) showInfo(sel.dataset.id);
+    }
     console.log(`[Florescer] Planilha sincronizada: ${updated} lote(s) atualizado(s).`);
   } catch (err) {
     console.warn('[Florescer] Não foi possível sincronizar com Google Sheets:', err.message);
