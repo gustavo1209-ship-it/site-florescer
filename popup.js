@@ -1,3 +1,14 @@
+// Relay ?id= da URL para o iframe do mapa (QR code das placas)
+(function(){
+  var id = new URLSearchParams(window.location.search).get('id');
+  if (!id) return;
+  function relay() {
+    var iframe = document.querySelector('iframe');
+    if (iframe && iframe.contentWindow) iframe.contentWindow.postMessage({ focusLot: id }, '*');
+  }
+  window.addEventListener('load', function(){ relay(); setTimeout(relay, 800); setTimeout(relay, 2000); });
+}());
+
 (function(){
   if(location.pathname.indexOf('ponzoni-industrial-vendas')!==-1)return;
   var GS='https://script.google.com/macros/s/AKfycbzouicNR8FGPRX9rw_SPN0lGr2qKKtg4QcBCZPlk8ivEp0IvezzRsVr0mo9tr5SE1iQfA/exec';
