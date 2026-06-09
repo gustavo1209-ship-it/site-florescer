@@ -905,7 +905,7 @@ async function syncFromSheet() {
       if (/area|m2|m²|metragem/.test(h)) colIdx.area = i;
       if (/dimens|frente|medida/.test(h)) colIdx.dim  = i;
       if (/desc|observ|obs$|nota/.test(h)) colIdx.desc = i;
-      if (/^tipo$|tipo.lote|tipo.terreno/.test(h)) colIdx.tipo = i;
+      if (/tipo/.test(h)) colIdx.tipo = i;
     });
     let updated = 0;
     for (let r = 1; r < rows.length; r++) {
